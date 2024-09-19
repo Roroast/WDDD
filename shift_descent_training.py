@@ -10,7 +10,7 @@ torch.manual_seed(2024)
 shift_descent_DF = make_DF(R_list = [50], NM_list = [[6,6],[10,6],[15,6],[10,10],[15,10], [15,15]], 
                         type_list = ['branching', 'coalescent', 'gaussian'], 
                         grad_list = ["CD", "TD", "CA", "TA"], 
-                        num_exps = 1, 
+                        num_exps = 10, 
                         lr_df = None,
                         scale_df = None,
                         graph_list = ["comp"],
@@ -20,7 +20,7 @@ shift_descent_DF = make_DF(R_list = [50], NM_list = [[6,6],[10,6],[15,6],[10,10]
                         supp_num_steps = [0]
                        )
 
-lrs = list(np.logspace(-6, 4, num = 2, base = np.e))
+lrs = list(np.logspace(-6, 4, num = 10, base = np.e))
 lr_df = pd.DataFrame(lrs, columns = ['lr'])
 scale_df = pd.DataFrame([0.1], columns = ['scale'])
 
