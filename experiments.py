@@ -46,8 +46,7 @@ def make_DF(R_list = [50],
                         steps = [20],
                         shift_num_steps = [20],
                         supp_num_steps = [20],
-                        normalised_data = True,
-                        leaf_supp = False
+                        normalised_data = True
                        ):
     
     #Form data frame columns with sample data details - sample size(data_count), dimensionality(data_dim), sample measure type(data_type), and an empty column for sample data(data)
@@ -88,18 +87,9 @@ def make_DF(R_list = [50],
     empty_init_df = pd.DataFrame([[None, None]], columns = ['t_init', 'supp_init'])                
     init_df = exp_df.merge(empty_init_df, how = "cross").merge(NM_df, how = "cross")
                            
-    if leaf_supp:
-                        
-        for index, row in init_df.iterrows():
-            Ln = int(np.sqrt(2*row['N']+1/4)+1/2)
-            Lm = int(np.sqrt(2*row['M']+1/4)+1/2)
-            init_df.at[index, 't_init'] = torch.randn(row['N'])
-            init_df.at[index, 'supp_init'] = rand_leaf_supp(Ln, Lm)
-    else:
-                        
-        for index, row in init_df.iterrows():
-            init_df.at[index, 't_init'] = torch.randn(row['N'])
-            init_df.at[index, 'supp_init'] = rand_supp(row['N'], row['M'])
+    for index, row in init_df.iterrows():
+        init_df.at[index, 't_init'] = torch.randn(row['N'])
+        init_df.at[index, 'supp_init'] = rand_supp(row['N'], row['M'])
                        
     DF = pd.merge(init_df, data_df, on = ['N', 'M'])
                         
@@ -120,7 +110,7 @@ def make_DF(R_list = [50],
     
     return DF
 
-def experiment(DF):
+def experiment(DF, verbose_bool = True):
 
     random.seed(2023)
     np.random.seed(2023)
@@ -137,7 +127,7 @@ def experiment(DF):
 
         start = time()
 
-        loss = Dist.minimise(row['supp_num_steps'], row['shift_num_steps'], row['steps'], lr = row['lr'], scale = row['scale'], grad = row['grad'], graph = row['graph'], verbose = True)
+        loss = Dist.minimise(row['supp_num_steps'], row['shift_num_steps'], row['steps'], lr = row['lr'], scale = row['scale'], grad = row['grad'], graph = row['graph'], verbose = verbose_bool)
 
         stop = time()
 
@@ -145,4 +135,3 @@ def experiment(DF):
         DF.at[index, 'loss_values'] = torch.tensor(loss).detach().numpy()
     
     return DF
-                    

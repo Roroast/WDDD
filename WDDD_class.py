@@ -232,3 +232,5 @@ class WDDD:
                 
         if verbose:
             return track
+        else:
+            return [OP.loss]
