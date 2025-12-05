@@ -2,10 +2,14 @@ import pandas as pd
 from trop_fns import *
 from WDDD_class import *
 from experiments import *
+
+random.seed(2024)
+np.random.seed(2024)
+torch.manual_seed(2024)
     
 datafile_df = pd.DataFrame([[str(n)+".npy", str(m)+".npy", None, None] for m in range(1993, 2014) for n in range(1993, m+1)], columns = ["high_datafile", "low_datafile", "high_data", "low_data"])
 
-hyperparam_df = pd.DataFrame([["TA", "incomp", 2, 40, 50, 50, np.e**(-2), np.e**(-2), 50, None, None]], columns = ["grad", "graph", "p", "steps", "supp_num_steps", "shift_num_steps", "lr", "scale", "R", "time_taken", "loss_values"])
+hyperparam_df = pd.DataFrame([["TA", "incomp", 2, 40, 50, 50, np.e**(-1), np.e**(-2), 50, None, None]], columns = ["grad", "graph", "p", "steps", "supp_num_steps", "shift_num_steps", "lr", "scale", "R", "time_taken", "loss_values"])
 
 datafile_df = datafile_df.merge(hyperparam_df, how = "cross")
 

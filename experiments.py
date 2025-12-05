@@ -15,32 +15,26 @@ def mean_print(exps_DF, settings, names):
             exp_DF = exps_DF[(exps_DF[settings[0]] == alpha) & (exps_DF[settings[1]] == exp)]
             print(f"Time taken for {exp}, {alpha}: {np.mean(exp_DF['time']):.2f} seconds. Mean, STD for {exp}, {alpha}: {np.mean(exp_DF['end_loss']):.2f} plus/minus {np.std(exp_DF['end_loss']):.2f}")
             
-def log_error(DF):
+def calc_error(DF):
                   
     solution_DF = DF[['loss_values', 'N', 'M', 'N_data_type', 'M_data_type']].copy()
-    solution_DF['optimal_val'] = DF.apply(lambda row: min(row['loss_values']), axis=1)
-    solution_DF = solution_DF.groupby(['N', 'M', 'N_data_type', 'M_data_type'])['optimal_val'].agg([('min', 'min')]).reset_index()
-    
-    log_error_DF = DF.merge(solution_DF, on = ['N', 'M', 'N_data_type', 'M_data_type'])
+    solution_DF = solution_DF.groupby(['N', 'M', 'N_data_type', 'M_data_type'])['loss_values'].agg([('min', 'min')]).reset_index()
+
+    error_DF = DF.merge(solution_DF, on = ['N', 'M', 'N_data_type', 'M_data_type'])
                   
-    DF['log_error']  = log_error_DF[['loss_values', 'min']].apply(lambda x: error(x['loss_values'], x['min']), axis=1)
-    DF['end_log_error'] = DF['log_error'].str[-1]
+    DF['error']  = error_DF[['loss_values', 'min']].apply(lambda x: error(x['loss_values'], x['min']), axis=1)
+    #DF['end_log_error'] = DF['log_error'].str[-1]
                   
     return DF
                   
-def error(loss_values,global_soln = 0.8, relative = True):
-    if relative:
-        return np.log(np.array(loss_values) - global_soln*0.99) - np.log(global_soln*0.99)
-    else:
-        return np.log(np.array(loss_values) - global_soln + 0.00001)
+def error(loss_values,global_soln):
+    return np.array(loss_values) - global_soln
                       
 def make_DF(R_list = [50], 
                         NM_list = [[10,6],[15,6], [15,10]], 
                         type_list = ['branching', 'coalescent', 'gaussian'], 
                         grad_list = ["CD", "TD", "CS", "TS", "CA", "TA"], 
                         num_exps = 20, 
-                        lr_df = None,
-                        scale_df = None,
                         graph_list = ["comp", "incomp"],
                         p = ["infty"],
                         steps = [20],
@@ -102,12 +96,6 @@ def make_DF(R_list = [50],
                 
     DF = DF.merge(grad_df, how = "cross").merge(graph_df, how = "cross").merge(results_df, how = "cross").merge(steps_df, how = "cross").merge(supp_num_steps_df, how = "cross").merge(shift_num_steps_df, how = "cross")
     
-    if lr_df is not None:
-        DF = DF.merge(lr_df, on = ['data_dim', 'data_count', 'grad'])
-                        
-    if scale_df is not None:
-        DF = DF.merge(scale_df, on = ['data_dim', 'data_count', 'graph'])
-    
     return DF
 
 def experiment(DF, verbose_bool = True):
@@ -135,3 +123,4 @@ def experiment(DF, verbose_bool = True):
         DF.at[index, 'loss_values'] = torch.tensor(loss).detach().numpy()
     
     return DF
+                    

@@ -11,8 +11,6 @@ shift_optimisation_DF = make_DF(R_list = [50], NM_list = [[6,6],[10,6],[15,6],[1
                         type_list = ['branching', 'coalescent', 'gaussian'], 
                         grad_list = ["CD", "TD", "CA", "TA"], 
                         num_exps = 10, 
-                        lr_df = None,
-                        scale_df = None,
                         graph_list = ["comp"],
                         p = [2],
                         steps = [40],
